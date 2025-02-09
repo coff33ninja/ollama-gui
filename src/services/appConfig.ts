@@ -15,6 +15,9 @@ export const isDarkMode = useLocalStorage('darkMode', true)
 export const isSettingsOpen = useLocalStorage('settingsPanelOpen', true)
 export const isSystemPromptOpen = useLocalStorage('systemPromptOpen', true)
 export const scrollBehavior = useLocalStorage('scrollBehavior', 'follow') // 'follow' or 'end'
+export const isTTSEnabled = useLocalStorage('ttsEnabled', false)
+export const isSTTEnabled = useLocalStorage('sttEnabled', false)
+export const selectedVoice = useLocalStorage('selectedVoice', '')
 export const toggleSettingsPanel = () => (isSettingsOpen.value = !isSettingsOpen.value)
 export const toggleSystemPromptPanel = () =>
   (isSystemPromptOpen.value = !isSystemPromptOpen.value)

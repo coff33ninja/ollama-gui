@@ -3,6 +3,8 @@ import { computed, ref } from 'vue'
 import { useTextareaAutosize } from '@vueuse/core'
 import { useChats } from '../services/chat.ts'
 import { IconPlayerStopFilled, IconSend, IconWhirl } from '@tabler/icons-vue'
+import { isSTTEnabled } from '../services/appConfig'
+import AISpeechInput from './AISpeechInput.vue'
 
 const { textarea, input: userInput } = useTextareaAutosize({ input: '' })
 const { addUserMessage, abort, hasActiveChat } = useChats()
@@ -58,30 +60,36 @@ const handleCompositionEnd = () => {
       <textarea
         ref="textarea"
         v-model="userInput"
-        class="block max-h-[500px] w-full resize-none rounded-xl border-none bg-gray-50 p-4 pl-4 pr-20 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600 dark:bg-gray-700 dark:text-gray-50 dark:placeholder-gray-300 dark:focus:ring-blue-600 sm:text-base"
+        class="block max-h-[500px] w-full resize-none rounded-xl border-none bg-gray-50 p-4 pl-4 pr-24 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600 dark:bg-gray-700 dark:text-gray-50 dark:placeholder-gray-300 dark:focus:ring-blue-600 sm:text-base"
         placeholder="Enter your prompt"
         @keydown="onKeydown"
         @compositionstart="handleCompositionStart"
         @compositionend="handleCompositionEnd"
       ></textarea>
-      <button
-        type="submit"
-        :disabled="isInputValid == false && isAiResponding == false"
-        class="group absolute bottom-2 right-2.5 flex size-10 items-center justify-center rounded-lg bg-blue-700 text-sm font-medium text-white transition duration-200 ease-in-out hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:bg-gray-400 disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 dark:disabled:bg-gray-600 sm:text-base"
-      >
-        <IconPlayerStopFilled
-          v-if="isAiResponding"
-          class="absolute opacity-0 transition duration-200 ease-in-out group-hover:opacity-100"
-          :size="20"
+      <div class="absolute bottom-2 right-2.5 flex gap-2">
+        <AISpeechInput
+          v-if="isSTTEnabled"
+          v-model="userInput"
+          @submit="onSubmit"
         />
-        <IconWhirl
-          class="absolute animate-spin opacity-50 transition duration-200 ease-in-out group-hover:opacity-0"
-          v-if="isAiResponding"
-          :size="20"
-        />
-
-        <IconSend v-else :size="20" />
-      </button>
+        <button
+          type="submit"
+          :disabled="isInputValid == false && isAiResponding == false"
+          class="group flex size-10 items-center justify-center rounded-lg bg-blue-700 text-sm font-medium text-white transition duration-200 ease-in-out hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:bg-gray-400 disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 dark:disabled:bg-gray-600 sm:text-base"
+        >
+          <IconPlayerStopFilled
+            v-if="isAiResponding"
+            class="absolute opacity-0 transition duration-200 ease-in-out group-hover:opacity-100"
+            :size="20"
+          />
+          <IconWhirl
+            class="absolute animate-spin opacity-50 transition duration-200 ease-in-out group-hover:opacity-0"
+            v-if="isAiResponding"
+            :size="20"
+          />
+          <IconSend v-else :size="20" />
+        </button>
+      </div>
     </div>
   </form>
 </template>

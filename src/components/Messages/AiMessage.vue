@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Message } from '../../services/database.ts'
-import { debugMode } from '../../services/appConfig.ts'
+import { debugMode, isTTSEnabled } from '../../services/appConfig.ts'
 import Markdown from '../Markdown.ts'
+import AISpeechOutput from '../AISpeechOutput.vue'
 import 'highlight.js/styles/github-dark.css'
 import logo from '/logo.png'
 
@@ -20,14 +21,20 @@ const { message } = defineProps<Props>()
       alt="Ollama"
     />
 
-    <div class="flex max-w-3xl items-center rounded-xl">
-      <code v-if="debugMode" class="whitespace-pre-line">{{ message.content }}</code>
-      <div
-        v-else
-        class="prose prose-base max-w-full dark:prose-invert prose-headings:font-semibold prose-h1:text-lg prose-h2:text-base prose-h3:text-base prose-p:first:mt-0 prose-a:text-blue-600 prose-code:text-sm prose-code:text-gray-100 prose-pre:p-2 dark:prose-code:text-gray-100 prose-pre:bg-gray-900 dark:prose-pre:bg-gray-900"
-      >
-        <Markdown :source="message.content" />
+    <div class="flex max-w-3xl items-start rounded-xl">
+      <div class="flex-grow">
+        <code v-if="debugMode" class="whitespace-pre-line">{{ message.content }}</code>
+        <div
+          v-else
+          class="prose prose-base max-w-full dark:prose-invert prose-headings:font-semibold prose-h1:text-lg prose-h2:text-base prose-h3:text-base prose-p:first:mt-0 prose-a:text-blue-600 prose-code:text-sm prose-code:text-gray-100 prose-pre:p-2 dark:prose-code:text-gray-100 prose-pre:bg-gray-900 dark:prose-pre:bg-gray-900"
+        >
+          <Markdown :source="message.content" />
+        </div>
       </div>
+      <AISpeechOutput
+        v-if="isTTSEnabled"
+        :text="message.content"
+      />
     </div>
   </div>
 </template>

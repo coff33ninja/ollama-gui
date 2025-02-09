@@ -118,6 +118,39 @@ const abortController = ref<AbortController>(new AbortController())
 const signal = ref<AbortSignal>(abortController.value.signal)
 // Define the API client functions
 export const useApi = () => {
+  const processSpeechToText = async (params: SpeechToTextRequest) => {
+    const formData = new FormData()
+    formData.append('audio', params.audio)
+    formData.append('model', params.model)
+
+    const response = await fetch(`${baseUrl}/speech-to-text`, {
+      method: 'POST',
+      body: formData,
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to process speech-to-text')
+    }
+
+    return await response.json() as SpeechToTextResponse
+  }
+
+  const processTextToSpeech = async (params: TextToSpeechRequest) => {
+    const response = await fetch(`${baseUrl}/text-to-speech`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params),
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to process text-to-speech')
+    }
+
+    return await response.arrayBuffer()
+  }
+
   const error = ref(null)
 
   const generateChat = async (

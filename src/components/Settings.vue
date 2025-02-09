@@ -3,6 +3,7 @@ import { IconLayoutSidebarRightCollapse } from '@tabler/icons-vue'
 import ToggleInput from './Inputs/ToggleInput.vue'
 import TextInput from './Inputs/TextInput.vue'
 import ModelLibrary from './ModelLibrary.vue'
+import ModelLibraryTabs from './ModelLibraryTabs.vue'
 import {
   baseUrl,
   historyMessageLength,
@@ -10,7 +11,19 @@ import {
   gravatarEmail,
   toggleSettingsPanel,
   scrollBehavior,
+  isTTSEnabled,
+  isSTTEnabled,
+  selectedVoice,
 } from '../services/appConfig.ts'
+import { useSpeech } from '../services/speech'
+import { ref, onMounted } from 'vue'
+
+const { getVoices } = useSpeech()
+const voices = ref<SpeechSynthesisVoice[]>([])
+
+onMounted(() => {
+  voices.value = getVoices()
+})
 </script>
 
 <template>
@@ -29,9 +42,17 @@ import {
         <h2 class="text-lg font-medium">Settings</h2>
       </div>
 
-      <!-- Model Library Section -->
+      <!-- Model Libraries Section -->
       <div class="mb-6 border-b border-gray-200 dark:border-gray-700">
-        <ModelLibrary />
+        <div class="px-4">
+          <div class="mb-4">
+            <h3 class="text-lg font-semibold dark:text-white">Models</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Manage text and speech models for your chat experience
+            </p>
+          </div>
+          <ModelLibraryTabs />
+        </div>
       </div>
 
       <!-- General Settings -->
@@ -64,6 +85,36 @@ import {
 
           <div>
             <TextInput label="Gravatar Email" v-model="gravatarEmail" />
+          </div>
+
+          <!-- Speech Settings -->
+          <div class="border-t border-gray-200 pt-4 dark:border-gray-700">
+            <h4 class="mb-4 text-md font-medium">Speech Settings</h4>
+            
+            <div class="space-y-4">
+              <div>
+                <ToggleInput label="Enable Text-to-Speech" v-model="isTTSEnabled" />
+              </div>
+
+              <div v-if="isTTSEnabled">
+                <label class="mb-2 block text-sm font-medium">
+                  Select Voice
+                </label>
+                <select
+                  v-model="selectedVoice"
+                  class="block w-full rounded-lg bg-gray-100 p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 dark:bg-gray-800 dark:placeholder-gray-300 dark:focus:ring-blue-600"
+                >
+                  <option value="">Default Voice</option>
+                  <option v-for="voice in voices" :key="voice.name" :value="voice.name">
+                    {{ voice.name }} ({{ voice.lang }})
+                  </option>
+                </select>
+              </div>
+
+              <div>
+                <ToggleInput label="Enable Speech-to-Text" v-model="isSTTEnabled" />
+              </div>
+            </div>
           </div>
 
           <div>
