@@ -267,6 +267,7 @@
 </template>
 
 <script setup lang="ts">
+import { Model, ShowModelInformationResponse } from '../services/api'
 import { ref, onMounted, watch, computed } from 'vue'
 import { useApi } from '../services/api'
 import { useAI } from '../services/useAI'
@@ -275,8 +276,12 @@ import { IconDownload, IconTrash, IconX, IconSettings } from '@tabler/icons-vue'
 const { listLocalModels, pullModel, deleteModel, showModelInformation } = useApi()
 const { refreshModels } = useAI()
 
-const models = ref([])
-const filteredModels = ref([])
+interface InstalledModel extends Model {
+  installed: boolean
+}
+
+const models = ref<InstalledModel[]>([])
+const filteredModels = ref<InstalledModel[]>([])
 const loading = ref(true)
 const searchQuery = ref('')
 const modelInput = ref('')
@@ -452,8 +457,12 @@ const installModel = async (modelName: string) => {
     console.error('Error installing model:', error)
     installationError.value = true
     isInstalling.value = false
-    lastError.value = error as Error
-    progressLines.value.push(`[${new Date().toLocaleTimeString()}] Error: ${error.message}`)
+    if (error instanceof Error) {
+      lastError.value = error
+      progressLines.value.push(`[${new Date().toLocaleTimeString()}] Error: ${error.message}`)
+    } else {
+      progressLines.value.push(`[${new Date().toLocaleTimeString()}] An unknown error occurred`)
+    }
     currentProgress.value = 'Installation failed'
   }
 }

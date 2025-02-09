@@ -118,7 +118,11 @@ const startInstallation = async () => {
     installationError.value = true
     isInstalling.value = false
     lastError.value = error as Error
-    progressLines.value.push(`[${new Date().toLocaleTimeString()}] Error: ${error.message}`)
+    if (error instanceof Error) {
+      progressLines.value.push(`[${new Date().toLocaleTimeString()}] Error: ${error.message}`)
+    } else {
+      progressLines.value.push(`[${new Date().toLocaleTimeString()}] An unknown error occurred`)
+    }
     currentProgress.value = 'Installation failed'
   }
 }
