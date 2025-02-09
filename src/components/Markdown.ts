@@ -11,7 +11,14 @@ const Markdown: Component = defineComponent({
     },
   },
   setup(props) {
-    const md = ref<markdownit>(markdownit())
+    const md = ref<markdownit>(
+      markdownit({
+        html: true,
+        linkify: true,
+        typographer: true,
+        breaks: true,
+      })
+    )
     const copiedStates = ref<{ [key: string]: boolean }>({})
 
     // Add copy button to code blocks
@@ -125,6 +132,41 @@ const Markdown: Component = defineComponent({
       return addCopyButton(cleanCode, idx, languageClass)
     }
 
+    // Custom renderer for blockquotes
+    md.value.renderer.rules.blockquote_open = () => '<blockquote class="border-l-4 border-gray-300 dark:border-gray-600 pl-4 my-4 italic">'
+
+    // Custom renderer for headings
+    const headingClasses = {
+      h1: 'text-3xl font-bold mb-4 mt-6 dark:text-white',
+      h2: 'text-2xl font-bold mb-3 mt-5 dark:text-white',
+      h3: 'text-xl font-bold mb-2 mt-4 dark:text-white',
+      h4: 'text-lg font-bold mb-2 mt-3 dark:text-white',
+      h5: 'text-base font-bold mb-2 mt-2 dark:text-white',
+      h6: 'text-sm font-bold mb-2 mt-2 dark:text-white'
+    }
+
+    Object.entries(headingClasses).forEach(([level, classes], index) => {
+      md.value.renderer.rules[`${level}_open`] = () => `<${level} class="${classes}">`
+    })
+
+    // Custom renderer for links
+    md.value.renderer.rules.link_open = (tokens, idx) => {
+      const token = tokens[idx]
+      const href = token.attrGet('href')
+      return `<a href="${href}" class="text-blue-600 dark:text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">`
+    }
+
+    // Custom renderer for lists
+    md.value.renderer.rules.bullet_list_open = () => '<ul class="list-disc list-inside space-y-1 my-4">'
+    md.value.renderer.rules.ordered_list_open = () => '<ol class="list-decimal list-inside space-y-1 my-4">'
+
+    // Custom renderer for tables
+    md.value.renderer.rules.table_open = () => '<div class="overflow-x-auto my-4"><table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">'
+    md.value.renderer.rules.thead_open = () => '<thead class="bg-gray-50 dark:bg-gray-800">'
+    md.value.renderer.rules.th_open = () => '<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">'
+    md.value.renderer.rules.tr_open = () => '<tr class="hover:bg-gray-50 dark:hover:bg-gray-700">'
+    md.value.renderer.rules.td_open = () => '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">'
+
     md.value.use(highlightjs, {
       inline: true,
       auto: true,
@@ -146,7 +188,10 @@ const Markdown: Component = defineComponent({
       </svg>
     `
 
-    return () => h('div', { innerHTML: icons + content.value })
+    return () => h('div', { 
+      innerHTML: icons + content.value,
+      class: 'prose dark:prose-invert max-w-none'
+    })
   },
 })
 
