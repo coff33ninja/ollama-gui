@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { IconVolume } from '@tabler/icons-vue'
+import { IconVolume, IconVolumeOff } from '@tabler/icons-vue'
 import { useAISpeech } from '../services/aiSpeech'
 import { useAISpeechApi } from '../services/aiSpeechApi'
 
@@ -8,7 +8,7 @@ const props = defineProps<{
   text: string
 }>()
 
-const { getInstalledModels } = useAISpeech()
+const { getInstalledModels, getRecommendedModels } = useAISpeech()
 const speechApi = useAISpeechApi()
 
 const isPlaying = ref(false)
@@ -16,6 +16,9 @@ const error = ref<string | null>(null)
 
 const ttsModels = computed(() => getInstalledModels('tts'))
 const hasTTSModel = computed(() => ttsModels.value.length > 0)
+const recommendedTTSModel = computed(() => {
+  return getRecommendedModels().find(model => model.type === 'tts')?.name || 'bark:small'
+})
 
 const speak = async () => {
   if (isPlaying.value || !props.text || !hasTTSModel.value) return
@@ -53,13 +56,19 @@ const speak = async () => {
 </script>
 
 <template>
-  <button
-    v-if="hasTTSModel"
-    @click="speak"
-    class="ml-2 flex size-8 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-200 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
-    :class="{ 'animate-pulse': isPlaying }"
-    :title="error || 'Click to play text-to-speech'"
-  >
-    <IconVolume :size="20" />
-  </button>
+  <div class="relative">
+    <button
+      @click="speak"
+      :disabled="!hasTTSModel"
+      class="group ml-2 flex size-8 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-700 disabled:opacity-50 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+      :class="{ 'animate-pulse': isPlaying }"
+      :title="error || (hasTTSModel ? 'Click to play text-to-speech' : `Install ${recommendedTTSModel} for text-to-speech`)"
+    >
+      <IconVolume v-if="hasTTSModel" :size="20" />
+      <IconVolumeOff v-else :size="20" />
+    </button>
+    <div v-if="!hasTTSModel" class="absolute bottom-full right-0 mb-2 whitespace-nowrap rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100">
+      Install {{ recommendedTTSModel }} for text-to-speech
+    </div>
+  </div>
 </template>
