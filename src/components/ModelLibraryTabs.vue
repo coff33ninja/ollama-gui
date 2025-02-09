@@ -83,6 +83,20 @@ const formatDate = (dateString: string): string => {
     </div>
 
     <!-- Requirements Notice -->
+    <div v-if="activeTab !== 'text'" class="mx-4 mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-700">
+      <div class="flex items-start gap-2">
+        <IconInfoCircle class="w-5 h-5 text-yellow-600 dark:text-yellow-500 mt-0.5" />
+        <div>
+          <h4 class="font-medium text-yellow-800 dark:text-yellow-300">Requirements</h4>
+          <p class="mt-1 text-sm text-yellow-700 dark:text-yellow-400">
+            Speech models require Hugging Face Transformers. Install with:
+            <code class="px-2 py-1 mt-2 block bg-yellow-100 dark:bg-yellow-900/40 rounded">pip install transformers torch</code>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Content -->
     <div class="tab-content">
       <!-- Text Models Tab -->
       <div v-if="activeTab === 'text'" class="tab-pane">

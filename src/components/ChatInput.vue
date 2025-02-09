@@ -1,17 +1,28 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useTextareaAutosize } from '@vueuse/core'
 import { useChats } from '../services/chat.ts'
 import { IconPlayerStopFilled, IconSend, IconWhirl } from '@tabler/icons-vue'
 import { isSTTEnabled } from '../services/appConfig'
+import { useAISpeech } from '../services/aiSpeech'
 import AISpeechInput from './AISpeechInput.vue'
 
 const { textarea, input: userInput } = useTextareaAutosize({ input: '' })
 const { addUserMessage, abort, hasActiveChat } = useChats()
+const { getInstalledModels, fetchSpeechModels } = useAISpeech()
 
 const isInputValid = computed<boolean>(() => !!userInput.value.trim())
 const isAiResponding = ref(false)
 const flag = ref(true)
+
+const hasSTTModel = computed(() => {
+  const models = getInstalledModels('stt')
+  return models.length > 0
+})
+
+onMounted(async () => {
+  await fetchSpeechModels()
+})
 
 const onSubmit = () => {
   if (isAiResponding.value) {
@@ -68,7 +79,7 @@ const handleCompositionEnd = () => {
       ></textarea>
       <div class="absolute bottom-2 right-2.5 flex gap-2">
         <AISpeechInput
-          v-if="isSTTEnabled"
+          v-if="isSTTEnabled && hasSTTModel"
           v-model="userInput"
           @submit="onSubmit"
         />
