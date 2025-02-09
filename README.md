@@ -22,6 +22,8 @@
 - 🖥️ Clean, modern interface for interacting with Ollama models
 - 💾 Local chat history using IndexedDB
 - 📝 Full Markdown support in messages
+- 🎙️ Speech-to-Text using Whisper models
+- 🔊 Text-to-Speech using Bark models
 - 🌙 Dark mode support
 - 🚀 Fast and responsive
 - 🔒 Privacy-focused: All processing happens locally
@@ -32,6 +34,10 @@
 
 1. Install [Ollama](https://ollama.ai/download)
 2. Install [Node.js](https://nodejs.org/) (v16+) and [Yarn](https://classic.yarnpkg.com/lang/en/docs/install)
+3. For speech features, install Python dependencies:
+   ```bash
+   pip install transformers torch
+   ```
 
 ### Local Development
 
@@ -39,6 +45,10 @@
 # Start Ollama server with your preferred model
 ollama pull mistral  # or any other model
 ollama serve
+
+# For speech support, install recommended models
+ollama pull whisper:base  # for speech-to-text
+ollama pull bark:small    # for text-to-speech
 
 # Clone and run the GUI
 git clone https://github.com/HelgeSverre/ollama-gui.git
@@ -92,17 +102,48 @@ ollama pull <model_name>
 
 # Example
 ollama pull deepseek-r1:7b
+
+# For speech support
+ollama pull whisper:base
+ollama pull bark:small
+
+# Install Python dependencies for speech models
+pip install transformers torch
 ```
 
 Restart the containers using `docker compose restart`.
 
 Models will get downloaded inside the folder `./ollama_data` in the repository. You can change it inside the `compose.yml`
 
+## 🗣️ Speech Features
+
+The GUI supports both speech input and output through Hugging Face models:
+
+### Speech-to-Text
+- Uses OpenAI's Whisper model for accurate transcription
+- Click the microphone button to start recording
+- Automatically transcribes speech to text
+- Requires `whisper:base` model (or similar)
+
+### Text-to-Speech
+- Uses Suno's Bark model for natural speech synthesis
+- Click the speaker button on AI messages to hear them
+- High-quality voice generation
+- Requires `bark:small` model (or similar)
+
+### Setup
+1. Install Python dependencies: `pip install transformers torch`
+2. Install models through Ollama or the GUI's Model Library
+3. Enable speech features in Settings
+4. Use microphone/speaker buttons to interact
+
 ## 🛣️ Roadmap
 
 - [x] Chat history with IndexedDB
 - [x] Markdown message formatting
 - [x] Code cleanup and organization
+- [x] Speech-to-Text support
+- [x] Text-to-Speech support
 - [ ] Model library browser and installer
 - [ ] Mobile-responsive design
 - [ ] File uploads with OCR support
@@ -114,9 +155,15 @@ Models will get downloaded inside the folder `./ollama_data` in the repository. 
 - [Tailwind CSS](https://tailwindcss.com/) - Styling
 - [VueUse](https://vueuse.org/) - Vue Composition Utilities
 - [@tabler/icons-vue](https://github.com/tabler/icons-vue) - Icons
+- [Hugging Face](https://huggingface.co/) - Speech Models
 - Design inspired by [LangUI](https://www.langui.dev/)
 - Hosted on [Vercel](https://vercel.com/)
 
 ## 📄 License
 
 Released under the [MIT License](LICENSE.md).
+
+## 🙏 Credits
+
+- Original GUI by [Helge Sverre](https://github.com/HelgeSverre)
+- Speech features added by [@coff33ninja](https://github.com/coff33ninja)
