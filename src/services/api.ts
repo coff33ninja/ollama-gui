@@ -5,6 +5,12 @@ import { Message } from './database.ts'
 export type ChatRequest = {
   model: string
   messages?: Message[]
+  options?: {
+    temperature?: number
+    top_p?: number
+    max_tokens?: number
+    [key: string]: any
+  }
 }
 
 export type ChatMessage = {
@@ -48,6 +54,7 @@ export type Model = {
   modified_at: string
   size: number
 }
+
 export type ListLocalModelsResponse = {
   models: Model[]
 }
@@ -110,12 +117,27 @@ export type GenerateEmbeddingsResponse = {
   embeddings: number[]
 }
 
+export type SpeechToTextRequest = {
+  model: string
+  audio: Blob
+}
+
+export type SpeechToTextResponse = {
+  text: string
+}
+
+export type TextToSpeechRequest = {
+  model: string
+  text: string
+}
+
 // Define a method to get the full API URL for a given path
 const getApiUrl = (path: string) =>
   `${baseUrl.value || 'http://localhost:11434/api'}${path}`
 
 const abortController = ref<AbortController>(new AbortController())
 const signal = ref<AbortSignal>(abortController.value.signal)
+
 // Define the API client functions
 export const useApi = () => {
   const processSpeechToText = async (params: SpeechToTextRequest) => {
@@ -303,6 +325,7 @@ export const useApi = () => {
 
     return await response.json()
   }
+
   const abort = () => {
     if (abortController.value) {
       abortController.value.abort()
@@ -324,5 +347,7 @@ export const useApi = () => {
     pushModel,
     generateEmbeddings,
     abort,
+    processSpeechToText,
+    processTextToSpeech
   }
 }

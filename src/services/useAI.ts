@@ -8,12 +8,15 @@ import {
 
 import { ref } from 'vue'
 import { Message } from './database'
+import { useModelParams } from './modelParams'
 
 // Define availableModels outside the function to ensure a shared state.
 const availableModels = ref<Model[]>([])
 
 export const useAI = () => {
   const { generateChat, listLocalModels, pullModel } = useApi()
+  const { getCurrentParams } = useModelParams()
+
   const generate = async (
     model: string,
     messages: Message[],
@@ -26,7 +29,19 @@ export const useAI = () => {
     if (system) {
       chatHistory.unshift(system)
     }
-    await generateChat({ model, messages: chatHistory }, (data: ChatResponse) => {
+
+    // Get current model parameters
+    const params = getCurrentParams()
+
+    await generateChat({
+      model,
+      messages: chatHistory,
+      options: {
+        temperature: params.temperature,
+        top_p: params.top_p,
+        max_tokens: params.max_tokens
+      }
+    }, (data: ChatResponse) => {
       if (!data.done && onMessage) {
         onMessage(data as ChatPartResponse)
       } else if (data.done && onDone) {
