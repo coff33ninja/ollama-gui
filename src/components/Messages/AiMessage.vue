@@ -24,7 +24,7 @@ const { message } = defineProps<Props>()
       <code v-if="debugMode" class="whitespace-pre-line">{{ message.content }}</code>
       <div
         v-else
-        class="prose prose-base max-w-full dark:prose-invert prose-headings:font-semibold prose-h1:text-lg prose-h2:text-base prose-h3:text-base prose-p:first:mt-0 prose-a:text-blue-600 prose-code:text-sm prose-code:text-gray-100 prose-pre:p-2 dark:prose-code:text-gray-100"
+        class="prose prose-base max-w-full dark:prose-invert prose-headings:font-semibold prose-h1:text-lg prose-h2:text-base prose-h3:text-base prose-p:first:mt-0 prose-a:text-blue-600 prose-code:text-sm prose-code:text-gray-100 prose-pre:p-2 dark:prose-code:text-gray-100 prose-pre:bg-gray-900 dark:prose-pre:bg-gray-900"
       >
         <Markdown :source="message.content" />
       </div>

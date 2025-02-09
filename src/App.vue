@@ -53,7 +53,10 @@ onMounted(() => {
     >
       <Sidebar />
 
-      <div class="mx-auto flex h-screen w-full flex-col">
+      <div 
+        class="mx-auto flex h-screen flex-col chat-container"
+        :class="{ 'settings-open': isSettingsOpen }"
+      >
         <div
           v-if="isSystemPromptOpen"
           class="mx-auto flex h-screen w-full max-w-7xl flex-col gap-4 px-4 pb-4"
@@ -100,7 +103,7 @@ onMounted(() => {
       </div>
 
       <transition name="slide">
-        <Settings v-if="isSettingsOpen" />
+        <Settings v-if="isSettingsOpen" class="settings-panel-width" />
       </transition>
     </main>
   </div>

@@ -9,6 +9,7 @@ import {
   debugMode,
   gravatarEmail,
   toggleSettingsPanel,
+  scrollBehavior,
 } from '../services/appConfig.ts'
 </script>
 
@@ -42,6 +43,19 @@ import {
         <div class="space-y-4">
           <div>
             <ToggleInput label="Enable debug mode" v-model="debugMode" />
+          </div>
+
+          <div>
+            <label class="mb-2 block text-sm font-medium">
+              Chat Scroll Behavior
+            </label>
+            <select
+              v-model="scrollBehavior"
+              class="block w-full rounded-lg bg-gray-100 p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 dark:bg-gray-800 dark:placeholder-gray-300 dark:focus:ring-blue-600"
+            >
+              <option value="follow">Follow AI Text</option>
+              <option value="end">Scroll to End</option>
+            </select>
           </div>
 
           <div>

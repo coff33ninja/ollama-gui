@@ -14,6 +14,7 @@ export const baseUrl = useLocalStorage('baseUrl', 'http://localhost:11434/api')
 export const isDarkMode = useLocalStorage('darkMode', true)
 export const isSettingsOpen = useLocalStorage('settingsPanelOpen', true)
 export const isSystemPromptOpen = useLocalStorage('systemPromptOpen', true)
+export const scrollBehavior = useLocalStorage('scrollBehavior', 'follow') // 'follow' or 'end'
 export const toggleSettingsPanel = () => (isSettingsOpen.value = !isSettingsOpen.value)
 export const toggleSystemPromptPanel = () =>
   (isSystemPromptOpen.value = !isSystemPromptOpen.value)
