@@ -61,22 +61,32 @@
                 Modified: {{ formatDate(model.modified_at) }}
               </p>
             </div>
-            <div class="flex gap-2">
+            <div class="flex flex-col gap-2">
+              <div class="flex gap-2">
+                <button
+                  @click="updateModel(model.name)"
+                  class="inline-flex items-center justify-center gap-2 rounded-lg border-none px-3 py-1 text-sm font-medium text-white bg-green-600 hover:bg-green-700"
+                  title="Update model"
+                >
+                  <IconDownload class="h-4 w-4" />
+                  Update
+                </button>
+                <button
+                  @click="removeModel(model.name)"
+                  class="inline-flex items-center justify-center gap-2 rounded-lg border-none px-3 py-1 text-sm font-medium text-white bg-red-600 hover:bg-red-700"
+                  title="Remove model"
+                >
+                  <IconTrash class="h-4 w-4" />
+                  Remove
+                </button>
+              </div>
               <button
-                @click="updateModel(model.name)"
-                class="inline-flex items-center justify-center gap-2 rounded-lg border-none px-3 py-1 text-sm font-medium text-white bg-green-600 hover:bg-green-700"
-                title="Update model"
+                @click="openConfigModal(model)"
+                class="inline-flex items-center justify-center gap-2 rounded-lg border-none px-3 py-1 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                title="Configure model parameters"
               >
-                <IconDownload class="h-4 w-4" />
-                Update
-              </button>
-              <button
-                @click="removeModel(model.name)"
-                class="inline-flex items-center justify-center gap-2 rounded-lg border-none px-3 py-1 text-sm font-medium text-white bg-red-600 hover:bg-red-700"
-                title="Remove model"
-              >
-                <IconTrash class="h-4 w-4" />
-                Remove
+                <IconSettings class="h-4 w-4" />
+                Configuration
               </button>
             </div>
           </div>
@@ -166,6 +176,93 @@
         </div>
       </div>
     </div>
+
+    <!-- Configuration Modal -->
+    <div v-if="showConfigModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div class="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full p-6 shadow-xl">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold dark:text-white">
+            {{ selectedModel?.name }} Configuration
+          </h3>
+          <button 
+            @click="closeConfigModal"
+            class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          >
+            <IconX class="h-5 w-5" />
+          </button>
+        </div>
+
+        <div v-if="modelConfig" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+          <!-- License -->
+          <div>
+            <h4 class="font-medium text-gray-700 dark:text-gray-300 mb-2">License</h4>
+            <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
+              <pre class="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap">{{ modelConfig.license }}</pre>
+            </div>
+          </div>
+
+          <!-- Parameters -->
+          <div>
+            <h4 class="font-medium text-gray-700 dark:text-gray-300 mb-2">Model Specifications</h4>
+            <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg space-y-2">
+              <div>
+                <span class="font-medium text-gray-700 dark:text-gray-300">Size:</span>
+                <span class="text-sm text-gray-600 dark:text-gray-400 ml-2">{{ formatSize(selectedModel?.size || 0) }}</span>
+              </div>
+              <div v-if="modelConfig?.parameters">
+                <span class="font-medium text-gray-700 dark:text-gray-300">Parameters:</span>
+                <div class="mt-1">
+                  <pre class="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap">{{ modelConfig.parameters }}</pre>
+                </div>
+              </div>
+              <div v-if="getContextSize(modelConfig?.modelfile)">
+                <span class="font-medium text-gray-700 dark:text-gray-300">Context Window:</span>
+                <span class="text-sm text-gray-600 dark:text-gray-400 ml-2">{{ getContextSize(modelConfig?.modelfile) }} tokens</span>
+              </div>
+              <div v-if="getModelCapabilities(modelConfig?.modelfile)">
+                <span class="font-medium text-gray-700 dark:text-gray-300">Capabilities:</span>
+                <ul class="mt-1 list-disc list-inside">
+                  <li v-for="capability in getModelCapabilities(modelConfig?.modelfile)" 
+                      :key="capability"
+                      class="text-sm text-gray-600 dark:text-gray-400">
+                    {{ capability }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Template -->
+          <div>
+            <h4 class="font-medium text-gray-700 dark:text-gray-300 mb-2">Template</h4>
+            <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
+              <pre class="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap">{{ modelConfig.template }}</pre>
+            </div>
+          </div>
+
+          <!-- Modelfile -->
+          <div>
+            <h4 class="font-medium text-gray-700 dark:text-gray-300 mb-2">Modelfile</h4>
+            <div class="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
+              <pre class="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap">{{ modelConfig.modelfile }}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div v-else class="text-center py-8 text-gray-600 dark:text-gray-400">
+          Loading configuration...
+        </div>
+
+        <div class="mt-6 flex justify-end">
+          <button
+            @click="closeConfigModal"
+            class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -173,9 +270,9 @@
 import { ref, onMounted, watch, computed } from 'vue'
 import { useApi } from '../services/api'
 import { useAI } from '../services/useAI'
-import { IconDownload, IconTrash, IconX } from '@tabler/icons-vue'
+import { IconDownload, IconTrash, IconX, IconSettings } from '@tabler/icons-vue'
 
-const { listLocalModels, pullModel, deleteModel } = useApi()
+const { listLocalModels, pullModel, deleteModel, showModelInformation } = useApi()
 const { refreshModels } = useAI()
 
 const models = ref([])
@@ -194,6 +291,28 @@ const progressLines = ref<string[]>([])
 const currentProgress = ref('')
 const currentModelName = ref('')
 const lastError = ref<Error | null>(null)
+
+// Configuration modal state
+const showConfigModal = ref(false)
+const selectedModel = ref<Model | null>(null)
+const modelConfig = ref<ShowModelInformationResponse | null>(null)
+
+const openConfigModal = async (model: Model) => {
+  selectedModel.value = model
+  showConfigModal.value = true
+  try {
+    const config = await showModelInformation({ name: model.name })
+    modelConfig.value = config
+  } catch (error) {
+    console.error('Error fetching model configuration:', error)
+  }
+}
+
+const closeConfigModal = () => {
+  showConfigModal.value = false
+  selectedModel.value = null
+  modelConfig.value = null
+}
 
 // Computed status text
 const statusText = computed(() => {
@@ -384,5 +503,49 @@ const formatDate = (dateString: string): string => {
     month: 'short',
     day: 'numeric'
   })
+}
+
+const getContextSize = (modelfile: string | undefined): number | null => {
+  if (!modelfile) return null
+  
+  // Look for context_length in parameters
+  const contextMatch = modelfile.match(/PARAMETER context_length (\d+)/)
+  if (contextMatch) {
+    return parseInt(contextMatch[1])
+  }
+  
+  // Look for context window in comments or descriptions
+  const windowMatch = modelfile.match(/context.*?window.*?(\d+)/i)
+  if (windowMatch) {
+    return parseInt(windowMatch[1])
+  }
+  
+  return null
+}
+
+const getModelCapabilities = (modelfile: string | undefined): string[] => {
+  if (!modelfile) return []
+  
+  const capabilities: string[] = []
+  
+  // Common capabilities to look for
+  const patterns = [
+    { pattern: /code.*generation|generate.*code/i, capability: 'Code Generation' },
+    { pattern: /text.*completion|complete.*text/i, capability: 'Text Completion' },
+    { pattern: /chat|conversation/i, capability: 'Chat/Conversation' },
+    { pattern: /reasoning|logic/i, capability: 'Reasoning' },
+    { pattern: /math|arithmetic|calculation/i, capability: 'Mathematics' },
+    { pattern: /analysis|analyze/i, capability: 'Analysis' },
+    { pattern: /creative.*writing|story/i, capability: 'Creative Writing' },
+    { pattern: /translation|translate/i, capability: 'Translation' }
+  ]
+  
+  patterns.forEach(({ pattern, capability }) => {
+    if (pattern.test(modelfile)) {
+      capabilities.push(capability)
+    }
+  })
+  
+  return capabilities
 }
 </script>
