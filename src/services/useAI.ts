@@ -13,7 +13,7 @@ import { Message } from './database'
 const availableModels = ref<Model[]>([])
 
 export const useAI = () => {
-  const { generateChat, listLocalModels } = useApi()
+  const { generateChat, listLocalModels, pullModel } = useApi()
   const generate = async (
     model: string,
     messages: Message[],
@@ -40,10 +40,17 @@ export const useAI = () => {
     availableModels.value = response.models
   }
 
+  // New method to install a model
+  const installModel = async (modelName: string) => {
+    await pullModel({ name: modelName })
+    await refreshModels() // Refresh the model list after installation
+  }
+
   // Use toRefs to keep reactivity when destructuring in components.
   return {
     availableModels,
     generate,
     refreshModels,
+    installModel, // Expose the new method
   }
 }

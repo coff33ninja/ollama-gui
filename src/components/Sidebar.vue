@@ -2,7 +2,6 @@
 import {
   IconMoon,
   IconPlus,
-  IconSettings2,
   IconSun,
   IconTrashX,
   IconUserCircle,
@@ -12,7 +11,6 @@ import {
 import {
   isDarkMode,
   isSystemPromptOpen,
-  toggleSettingsPanel,
   toggleSystemPromptPanel,
 } from '../services/appConfig.ts'
 import { useChats } from '../services/chat.ts'
@@ -90,17 +88,17 @@ const checkSystemPromptPanel = () => {
         >
           <IconSun v-if="isDarkMode" class="size-4 opacity-50 group-hover:opacity-80" />
           <IconMoon v-else class="size-4 opacity-50 group-hover:opacity-80" />
-
           Toggle dark mode
         </button>
+
         <button
           @click="wipeDatabase"
           class="group flex w-full items-center gap-x-2 rounded-md px-3 py-2 text-left text-sm font-medium text-gray-900 transition-colors duration-100 ease-in-out hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-300 dark:hover:bg-gray-700 dark:focus:ring-blue-500"
         >
           <IconTrashX class="size-4 opacity-50 group-hover:opacity-80" />
-
           Delete chats
         </button>
+
         <button
           v-if="false"
           class="group flex w-full items-center gap-x-2 rounded-md px-3 py-2 text-left text-sm font-medium text-gray-900 transition-colors duration-100 ease-in-out hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-300 dark:hover:bg-gray-700 dark:focus:ring-blue-500"
@@ -108,21 +106,13 @@ const checkSystemPromptPanel = () => {
           <IconUserCircle class="size-4 opacity-50 group-hover:opacity-80" />
           User
         </button>
+
         <button
           @click="toggleSystemPromptPanel"
           class="group flex w-full items-center gap-x-2 rounded-md px-3 py-2 text-left text-sm font-medium text-gray-900 transition-colors duration-100 ease-in-out hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-300 dark:hover:bg-gray-700 dark:focus:ring-blue-500"
         >
           <IconMessageCode class="size-4 opacity-50 group-hover:opacity-80" />
-
           System prompt
-        </button>
-        <button
-          @click="toggleSettingsPanel"
-          class="group flex w-full items-center gap-x-2 rounded-md px-3 py-2 text-left text-sm font-medium text-gray-900 transition-colors duration-100 ease-in-out hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-300 dark:hover:bg-gray-700 dark:focus:ring-blue-500"
-        >
-          <IconSettings2 class="size-4 opacity-50 group-hover:opacity-80" />
-
-          Settings
         </button>
       </div>
     </div>
