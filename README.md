@@ -1,169 +1,122 @@
-<p align="center">
-  <img src=".github/header.png" alt="Ollama GUI logo">
-</p>
+# Ollama GUI
 
-<h1 align="center">Ollama GUI</h1>
-<p align="center">A modern web interface for chatting with your local LLMs through Ollama</p>
+A web-based GUI for [Ollama](https://ollama.ai/), featuring chat interactions, voice input/output, and model management.
 
-<p align="center">
-  <a href="https://ollama.ai">
-    <img src="https://img.shields.io/badge/Powered%20by-Ollama-blue?style=flat-square" alt="Powered by Ollama">
-  </a>
-  <a href="https://github.com/HelgeSverre/ollama-gui/blob/main/LICENSE.md">
-    <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="MIT License">
-  </a>
-  <a href="https://ollama-gui.vercel.app">
-    <img src="https://img.shields.io/badge/Demo-Live-success?style=flat-square" alt="Live Demo">
-  </a>
-</p>
+## Features
 
-## ✨ Features
-
-- 🖥️ Clean, modern interface for interacting with Ollama models
-- 💾 Local chat history using IndexedDB
-- 📝 Full Markdown support in messages
-- 🎙️ Speech-to-Text using Whisper models
-- 🔊 Text-to-Speech using Bark models
+- 💬 Chat interface with markdown support
+- 🎙️ Voice input using Whisper for accurate speech recognition
+- 🔊 Text-to-speech output for AI responses
 - 🌙 Dark mode support
-- 🚀 Fast and responsive
-- 🔒 Privacy-focused: All processing happens locally
+- 📱 Responsive design
+- 🔄 Stream responses in real-time
+- 💾 Chat history
+- 📝 System prompts
+- 🎯 Model parameter adjustment
+- 📚 Model library management
 
-## 🚀 Quick Start
+## Prerequisites
 
-### Prerequisites (only needed for local development)
+- [Node.js](https://nodejs.org/) (v18 or later)
+- [Ollama](https://ollama.ai/) installed and running
+- Python 3.9+ for voice features
+- Audio input/output devices for voice features
 
-1. Install [Ollama](https://ollama.ai/download)
-2. Install [Node.js](https://nodejs.org/) (v16+) and [Yarn](https://classic.yarnpkg.com/lang/en/docs/install)
-3. For speech features, install Python dependencies:
-   ```bash
-   pip install transformers torch
-   ```
+## Installation
 
-### Local Development
-
+1. Clone the repository:
 ```bash
-# Start Ollama server with your preferred model
-ollama pull mistral  # or any other model
-ollama serve
-
-# For speech support, install recommended models
-ollama pull whisper:base  # for speech-to-text
-ollama pull bark:small    # for text-to-speech
-
-# Clone and run the GUI
-git clone https://github.com/HelgeSverre/ollama-gui.git
+git clone https://github.com/yourusername/ollama-gui.git
 cd ollama-gui
+```
+
+2. Install Node.js dependencies:
+```bash
 yarn install
+```
+
+3. Install Python dependencies for voice features:
+
+Windows:
+```bash
+# Install PyAudio wheel first (Windows)
+pip install pipwin
+pipwin install pyaudio
+
+# Install other dependencies
+pip install pyttsx3 whisper torch pygame numpy
+```
+
+Linux:
+```bash
+# Install PortAudio development package first
+sudo apt-get install portaudio19-dev python3-pyaudio
+
+# Install Python dependencies
+pip install pyaudio pyttsx3 whisper torch pygame numpy
+```
+
+macOS:
+```bash
+# Install PortAudio using Homebrew
+brew install portaudio
+
+# Install Python dependencies
+pip install pyaudio pyttsx3 whisper torch pygame numpy
+```
+
+## Usage
+
+1. Start Ollama (if not already running):
+```bash
+ollama serve
+```
+
+2. Start the voice assistant server:
+```bash
+python voice_assistant.py
+```
+
+3. Start the web interface:
+```bash
 yarn dev
 ```
 
-### Using the Hosted Version
+4. Open your browser and navigate to `http://localhost:5173`
 
-To use the [hosted version](https://ollama-gui.vercel.app), run Ollama with:
+## Voice Features
 
-```bash
-OLLAMA_ORIGINS=https://ollama-gui.vercel.app ollama serve
-```
+The GUI includes advanced voice interaction capabilities:
 
-### Docker Deployment
+- **Speech-to-Text**: Hold the microphone button while speaking to convert your voice to text
+  - Uses OpenAI's Whisper model for accurate transcription
+  - Works offline
+  - Supports multiple languages
 
-No need to install anything other than `docker`.
+- **Text-to-Speech**: Click the speaker icon on AI messages to hear them spoken
+  - Uses pyttsx3 for offline text-to-speech
+  - Supports system voices
+  - Visual feedback during playback
 
-> If you have GPU, please uncomment the following lines in the file `compose.yml`
-```Dockerfile
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: all
-    #           capabilities: [gpu]
-```
+## Configuration
 
-#### Run
-```bash
-docker compose up -d
+### Voice Settings
 
-# Access at http://localhost:8080
-```
+Voice features can be configured in the settings panel:
+- Enable/disable speech-to-text
+- Enable/disable text-to-speech
+- Select voice for text-to-speech
+- Adjust speech recognition language
 
-#### Stop
-```bash
-docker compose down
-```
+### Model Parameters
 
-#### Download more models
-```bash
-# Enter the ollama container
-docker exec -it ollama bash
+Adjust various model parameters:
+- Temperature
+- Top P
+- Top K
+- Context window
+- System prompt
 
-# Inside the container
-ollama pull <model_name>
+## Development
 
-# Example
-ollama pull deepseek-r1:7b
-
-# For speech support
-ollama pull whisper:base
-ollama pull bark:small
-
-# Install Python dependencies for speech models
-pip install transformers torch
-```
-
-Restart the containers using `docker compose restart`.
-
-Models will get downloaded inside the folder `./ollama_data` in the repository. You can change it inside the `compose.yml`
-
-## 🗣️ Speech Features
-
-The GUI supports both speech input and output through Hugging Face models:
-
-### Speech-to-Text
-- Uses OpenAI's Whisper model for accurate transcription
-- Click the microphone button to start recording
-- Automatically transcribes speech to text
-- Requires `whisper:base` model (or similar)
-
-### Text-to-Speech
-- Uses Suno's Bark model for natural speech synthesis
-- Click the speaker button on AI messages to hear them
-- High-quality voice generation
-- Requires `bark:small` model (or similar)
-
-### Setup
-1. Install Python dependencies: `pip install transformers torch`
-2. Install models through Ollama or the GUI's Model Library
-3. Enable speech features in Settings
-4. Use microphone/speaker buttons to interact
-
-## 🛣️ Roadmap
-
-- [x] Chat history with IndexedDB
-- [x] Markdown message formatting
-- [x] Code cleanup and organization
-- [x] Speech-to-Text support
-- [x] Text-to-Speech support
-- [ ] Model library browser and installer
-- [ ] Mobile-responsive design
-- [ ] File uploads with OCR support
-
-## 🛠️ Tech Stack
-
-- [Vue.js](https://vuejs.org/) - Frontend framework
-- [Vite](https://vitejs.dev/) - Build tool
-- [Tailwind CSS](https://tailwindcss.com/) - Styling
-- [VueUse](https://vueuse.org/) - Vue Composition Utilities
-- [@tabler/icons-vue](https://github.com/tabler/icons-vue) - Icons
-- [Hugging Face](https://huggingface.co/) - Speech Models
-- Design inspired by [LangUI](https://www.langui.dev/)
-- Hosted on [Vercel](https://vercel.com/)
-
-## 📄 License
-
-Released under the [MIT License](LICENSE.md).
-
-## 🙏 Credits
-
-- Original GUI by [Helge Sverre](https://github.com/HelgeSverre)
-- Speech features added by [@coff33ninja](https://github.com/coff33ninja)
+### Project Structure

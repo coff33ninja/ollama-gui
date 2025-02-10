@@ -6,6 +6,7 @@ import { IconPlayerStopFilled, IconSend, IconWhirl } from '@tabler/icons-vue'
 import { isSTTEnabled } from '../services/appConfig'
 import { useAISpeech } from '../services/aiSpeech'
 import AISpeechInput from './AISpeechInput.vue'
+import SpeechButton from './SpeechButton.vue'
 
 const { textarea, input: userInput } = useTextareaAutosize({ input: '' })
 const { addUserMessage, abort, hasActiveChat } = useChats()
@@ -24,7 +25,7 @@ onMounted(async () => {
   await fetchSpeechModels()
 })
 
-const onSubmit = () => {
+const handleSubmit = () => {
   if (isAiResponding.value) {
     abort()
     isAiResponding.value = false
@@ -44,7 +45,7 @@ const shouldSubmit = ({ key, shiftKey }: KeyboardEvent): boolean => {
   return key === 'Enter' && !shiftKey
 }
 
-const onKeydown = (event: KeyboardEvent) => {
+const handleKeyDown = (event: KeyboardEvent) => {
   if (shouldSubmit(event) && flag.value) {
     // Pressing enter while the ai is responding should not abort the request
     if (isAiResponding.value) {
@@ -52,7 +53,7 @@ const onKeydown = (event: KeyboardEvent) => {
     }
 
     event.preventDefault()
-    onSubmit()
+    handleSubmit()
   }
 }
 
@@ -63,29 +64,37 @@ const handleCompositionStart = () => {
 const handleCompositionEnd = () => {
   flag.value = true
 }
+
+const handleTranscription = (text: string) => {
+  userInput.value = text
+}
+
+defineEmits<{
+  (e: 'submit', value: string): void
+}>()
 </script>
 
 <template>
-  <form class="mt-2" @submit.prevent="onSubmit">
+  <form class="mt-2" @submit.prevent="handleSubmit">
     <div class="relative">
       <textarea
         ref="textarea"
         v-model="userInput"
         class="block max-h-[500px] w-full resize-none rounded-xl border-none bg-gray-50 p-4 pl-4 pr-24 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600 dark:bg-gray-700 dark:text-gray-50 dark:placeholder-gray-300 dark:focus:ring-blue-600 sm:text-base"
         placeholder="Enter your prompt"
-        @keydown="onKeydown"
+        @keydown="handleKeyDown"
         @compositionstart="handleCompositionStart"
         @compositionend="handleCompositionEnd"
-      ></textarea>
+      />
       <div class="absolute bottom-2 right-2.5 flex gap-2">
-        <AISpeechInput
+        <SpeechButton 
           v-if="isSTTEnabled && hasSTTModel"
-          v-model="userInput"
-          @submit="onSubmit"
+          mode="input" 
+          @transcription="handleTranscription" 
         />
         <button
           type="submit"
-          :disabled="isInputValid == false && isAiResponding == false"
+          :disabled="!isInputValid && !isAiResponding"
           class="group flex size-10 items-center justify-center rounded-lg bg-blue-700 text-sm font-medium text-white transition duration-200 ease-in-out hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:bg-gray-400 disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 dark:disabled:bg-gray-600 sm:text-base"
         >
           <IconPlayerStopFilled
