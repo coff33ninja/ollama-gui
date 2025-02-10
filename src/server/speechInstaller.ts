@@ -1,53 +1,53 @@
-import { exec } from 'child_process'
-import { Router } from 'express'
+import { exec, ChildProcess } from 'child_process'
+import { Router, Request, Response } from 'express'
 import { platform } from 'os'
 
 const router = Router()
 
-router.get('/check-python', (req, res) => {
-  exec('python --version', (error, stdout, stderr) => {
-    if (error) {
-      res.status(500).json({ error: 'Python not found' })
-      return
-    }
-    
-    // Check Python version
-    const version = stdout.trim().split(' ')[1]
+// Track running processes
+let speechServer: ChildProcess | null = null
+
+// Utility to handle async execution
+const execAsync = (command: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        reject(error)
+      } else {
+        resolve(stdout.trim())
+      }
+    })
+  })
+}
+
+// Check Python version
+router.get('/check-python', async (req: Request, res: Response) => {
+  try {
+    const stdout = await execAsync('python --version')
+    const version = stdout.split(' ')[1]
     const [major, minor] = version.split('.').map(Number)
     
     if (major >= 3 && minor >= 9) {
-      res.json({ version })
+      res.json({ version, status: 'ok' })
     } else {
-      res.status(500).json({ error: 'Python 3.9+ required' })
+      res.status(400).json({ 
+        error: 'Incompatible Python version', 
+        required: '3.9+', 
+        current: `${major}.${minor}` 
+      })
     }
-  })
+  } catch (error) {
+    res.status(500).json({ error: 'Python not found' })
+  }
 })
 
-router.post('/install-speech-deps', (req, res) => {
+// Install dependencies
+router.post('/install-speech-deps', (req: Request, res: Response) => {
   res.setHeader('Content-Type', 'text/plain')
   res.setHeader('Transfer-Encoding', 'chunked')
 
   const os = platform()
-  let commands: string[] = []
-
-  if (os === 'win32') {
-    commands = [
-      'pip install pipwin',
-      'pipwin install pyaudio',
-      'pip install flask flask-cors pyttsx3 whisper numpy'
-    ]
-  } else if (os === 'darwin') {
-    commands = [
-      'brew install portaudio',
-      'pip install pyaudio flask flask-cors pyttsx3 whisper numpy'
-    ]
-  } else {
-    commands = [
-      'sudo apt-get install -y portaudio19-dev python3-pyaudio',
-      'pip install pyaudio flask flask-cors pyttsx3 whisper numpy'
-    ]
-  }
-
+  const commands: string[] = getCommandsForPlatform(os)
   let currentCommand = 0
 
   const runCommand = () => {
@@ -77,16 +77,70 @@ router.post('/install-speech-deps', (req, res) => {
   runCommand()
 })
 
-router.post('/start-speech-server', (req, res) => {
+// Start speech server
+router.post('/start-speech-server', (req: Request, res: Response) => {
+  if (speechServer) {
+    return res.status(400).json({ error: 'Speech server is already running' })
+  }
+
   const pythonScript = 'speech_server.py'
   
-  exec(`python ${pythonScript}`, (error, stdout, stderr) => {
-    if (error) {
-      res.status(500).json({ error: error.message })
-      return
-    }
-    res.json({ message: 'Server started' })
+  speechServer = exec(`python ${pythonScript}`)
+  
+  speechServer.stdout?.on('data', (data) => {
+    console.log(`Speech server stdout: ${data}`)
+  })
+
+  speechServer.stderr?.on('data', (data) => {
+    console.error(`Speech server stderr: ${data}`)
+  })
+
+  speechServer.on('close', (code) => {
+    console.log(`Speech server exited with code ${code}`)
+    speechServer = null
+  })
+
+  res.json({ message: 'Server started', pid: speechServer.pid })
+})
+
+// Stop speech server
+router.post('/stop-speech-server', (req: Request, res: Response) => {
+  if (!speechServer) {
+    return res.status(400).json({ error: 'Speech server is not running' })
+  }
+
+  speechServer.kill()
+  res.json({ message: 'Server stopped' })
+})
+
+// Get server status
+router.get('/speech-server-status', (req: Request, res: Response) => {
+  res.json({
+    running: !!speechServer,
+    pid: speechServer?.pid
   })
 })
+
+// Helper function to get platform-specific commands
+function getCommandsForPlatform(os: string): string[] {
+  switch (os) {
+    case 'win32':
+      return [
+        'pip install pipwin',
+        'pipwin install pyaudio',
+        'pip install flask flask-cors pyttsx3 whisper numpy'
+      ]
+    case 'darwin':
+      return [
+        'brew install portaudio',
+        'pip install pyaudio flask flask-cors pyttsx3 whisper numpy'
+      ]
+    default:
+      return [
+        'sudo apt-get install -y portaudio19-dev python3-pyaudio',
+        'pip install pyaudio flask flask-cors pyttsx3 whisper numpy'
+      ]
+  }
+}
 
 export default router

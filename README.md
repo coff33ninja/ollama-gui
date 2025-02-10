@@ -1,122 +1,99 @@
 # Ollama GUI
 
-A web-based GUI for [Ollama](https://ollama.ai/), featuring chat interactions, voice input/output, and model management.
+A modern web interface for Ollama, featuring chat functionality, system prompts, and speech capabilities.
 
 ## Features
 
-- 💬 Chat interface with markdown support
-- 🎙️ Voice input using Whisper for accurate speech recognition
-- 🔊 Text-to-speech output for AI responses
-- 🌙 Dark mode support
-- 📱 Responsive design
-- 🔄 Stream responses in real-time
+- 🤖 Chat interface for Ollama models
+- 🎯 System prompts support
+- 🎙️ Speech-to-text and text-to-speech capabilities
+- 🌓 Dark/Light mode
 - 💾 Chat history
-- 📝 System prompts
-- 🎯 Model parameter adjustment
-- 📚 Model library management
+- 🔄 Multiple model support
 
-## Prerequisites
+## System Requirements
 
-- [Node.js](https://nodejs.org/) (v18 or later)
-- [Ollama](https://ollama.ai/) installed and running
-- Python 3.9+ for voice features
-- Audio input/output devices for voice features
+### Required
+- Node.js 18+ and npm
+- Python 3.9+ (Python 3.11 recommended)
+- Ollama installed and running
+
+### Optional (for Speech Features)
+- Microphone (for speech input)
+- Speakers (for text-to-speech)
 
 ## Installation
 
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/ollama-gui.git
-cd ollama-gui
-```
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/ollama-gui.git
+   cd ollama-gui
+   ```
 
-2. Install Node.js dependencies:
-```bash
-yarn install
-```
+2. **Install Node.js dependencies**
+   ```bash
+   npm install
+   ```
 
-3. Install Python dependencies for voice features:
+3. **Install Python and dependencies**
 
-Windows:
-```bash
-# Install PyAudio wheel first (Windows)
-pip install pipwin
-pipwin install pyaudio
+   Windows:
+   ```bash
+   # Install Python 3.11 using winget
+   winget install Python.Python.3.11
 
-# Install other dependencies
-pip install pyttsx3 whisper torch pygame numpy
-```
+   # Install Python dependencies
+   pip install flask flask-cors pyttsx3 openai-whisper numpy
+   ```
 
-Linux:
-```bash
-# Install PortAudio development package first
-sudo apt-get install portaudio19-dev python3-pyaudio
+   macOS:
+   ```bash
+   # Install Python using brew
+   brew install python@3.11
 
-# Install Python dependencies
-pip install pyaudio pyttsx3 whisper torch pygame numpy
-```
+   # Install Python dependencies
+   pip3 install flask flask-cors pyttsx3 openai-whisper numpy
+   ```
 
-macOS:
-```bash
-# Install PortAudio using Homebrew
-brew install portaudio
+   Linux:
+   ```bash
+   # Install Python and required packages
+   sudo apt-get update
+   sudo apt-get install -y python3.11 python3-pip portaudio19-dev python3-pyaudio
 
-# Install Python dependencies
-pip install pyaudio pyttsx3 whisper torch pygame numpy
-```
+   # Install Python dependencies
+   pip3 install flask flask-cors pyttsx3 openai-whisper numpy
+   ```
 
-## Usage
+## Running the Application
 
-1. Start Ollama (if not already running):
-```bash
-ollama serve
-```
+1. **Start Ollama**
+   Make sure Ollama is running and accessible at `http://localhost:11434`
 
-2. Start the voice assistant server:
-```bash
-python voice_assistant.py
-```
+2. **Start the development server**
+   ```bash
+   npm run dev
+   ```
 
-3. Start the web interface:
-```bash
-yarn dev
-```
+3. **Open the application**
+   Navigate to `http://localhost:5173` in your web browser
 
-4. Open your browser and navigate to `http://localhost:5173`
+## Troubleshooting
 
-## Voice Features
+### Python Issues
+- Ensure Python 3.9+ is installed: `python --version` or `python3 --version`
+- Check pip installation: `pip --version` or `pip3 --version`
+- If you see "Python not found", add Python to your system's PATH
 
-The GUI includes advanced voice interaction capabilities:
+### Speech Features
+- Make sure your microphone is connected and working
+- Allow microphone access when prompted by the browser
+- Check if the speech server is running (Status indicator in the UI)
 
-- **Speech-to-Text**: Hold the microphone button while speaking to convert your voice to text
-  - Uses OpenAI's Whisper model for accurate transcription
-  - Works offline
-  - Supports multiple languages
+## Contributing
 
-- **Text-to-Speech**: Click the speaker icon on AI messages to hear them spoken
-  - Uses pyttsx3 for offline text-to-speech
-  - Supports system voices
-  - Visual feedback during playback
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## Configuration
+## License
 
-### Voice Settings
-
-Voice features can be configured in the settings panel:
-- Enable/disable speech-to-text
-- Enable/disable text-to-speech
-- Select voice for text-to-speech
-- Adjust speech recognition language
-
-### Model Parameters
-
-Adjust various model parameters:
-- Temperature
-- Top P
-- Top K
-- Context window
-- System prompt
-
-## Development
-
-### Project Structure
+[MIT License](LICENSE)

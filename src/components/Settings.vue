@@ -5,6 +5,7 @@ import TextInput from './Inputs/TextInput.vue'
 import ModelLibrary from './ModelLibrary.vue'
 import ModelLibraryTabs from './ModelLibraryTabs.vue'
 import SpeechSettings from './SpeechSettings.vue'
+import SystemRequirements from './Settings/SystemRequirements.vue'
 import {
   baseUrl,
   historyMessageLength,
@@ -27,13 +28,44 @@ const voices = ref<SpeechSynthesisVoice[]>([])
 const isLoadingParams = ref(false)
 const modelParams = ref(defaultParams)
 
+// Ollama server control
+const isOllamaRunning = ref(false)
+
+const checkOllamaStatus = async () => {
+  try {
+    const response = await fetch('http://localhost:5000/status') // Replace with actual status endpoint
+    isOllamaRunning.value = response.ok
+  } catch (error) {
+    console.error('Error checking Ollama status:', error)
+    isOllamaRunning.value = false
+  }
+}
+
+const startOllama = async () => {
+  try {
+    await fetch('http://localhost:5000/start', { method: 'POST' }) // Replace with actual start endpoint
+    checkOllamaStatus() // Check status after attempting to start
+  } catch (error) {
+    console.error('Error starting Ollama:', error)
+  }
+}
+
+const stopOllama = async () => {
+  try {
+    await fetch('http://localhost:YOUR_OLLAMA_PORT/stop', { method: 'POST' }) // Replace with actual stop endpoint
+    checkOllamaStatus() // Check status after attempting to stop
+  } catch (error) {
+    console.error('Error stopping Ollama:', error)
+  }
+}
+
 const fetchModelParams = async (modelName: string) => {
   if (!modelName || modelName === 'none') return
-  
+
   try {
     isLoadingParams.value = true
     const info = await showModelInformation({ name: modelName })
-    
+
     // Parse parameters from the modelfile
     if (info.parameters) {
       try {
@@ -76,6 +108,7 @@ onMounted(() => {
   if (currentModel.value && currentModel.value !== 'none') {
     fetchModelParams(currentModel.value)
   }
+  checkOllamaStatus() // Check the initial status of Ollama
 })
 </script>
 
@@ -93,6 +126,34 @@ onMounted(() => {
           <span class="sr-only">Close settings sidebar</span>
         </button>
         <h2 class="text-lg font-medium">Settings</h2>
+      </div>
+
+      <!-- System Requirements Section -->
+      <!-- Status Indicators -->
+      <div class="mb-6 px-4 flex items-center gap-4">
+        <div class="flex items-center gap-2">
+          <div class="w-2 h-2 rounded-full" :class="isOllamaRunning ? 'bg-green-500' : 'bg-red-500'"></div>
+          <span class="text-sm text-gray-600 dark:text-gray-400">Ollama</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-2 h-2 rounded-full" :class="isSpeechServerRunning ? 'bg-green-500' : 'bg-red-500'"></div>
+          <span class="text-sm text-gray-600 dark:text-gray-400">Speech</span>
+        </div>
+      </div>
+
+      <!-- System Status Section -->
+      <div class="mb-6 border-b border-gray-200 dark:border-gray-700 px-4">
+        <!-- Status Indicators -->
+        <div class="mb-6 px-4 flex items-center gap-4">
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full" :class="isOllamaRunning ? 'bg-green-500' : 'bg-red-500'"></div>
+            <span class="text-sm text-gray-600 dark:text-gray-400">Ollama</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full" :class="isSpeechServerRunning ? 'bg-green-500' : 'bg-red-500'"></div>
+            <span class="text-sm text-gray-600 dark:text-gray-400">Speech</span>
+          </div>
+        </div>
       </div>
 
       <!-- Model Libraries Section -->
@@ -168,7 +229,7 @@ onMounted(() => {
       <!-- General Settings -->
       <div class="px-4 py-4 text-gray-900 dark:text-gray-100">
         <h3 class="mb-4 text-lg font-medium">General Settings</h3>
-        
+
         <div class="space-y-4">
           <div>
             <ToggleInput label="Enable debug mode" v-model="debugMode" />

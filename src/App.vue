@@ -4,6 +4,7 @@ import ChatInput from './components/ChatInput.vue'
 import ChatMessages from './components/ChatMessages.vue'
 import SystemPrompt from './components/SystemPrompt.vue'
 import ModelSelector from './components/ModelSelector.vue'
+import SystemRequirements from './components/SystemRequirements.vue'
 import {
   currentModel,
   isDarkMode,
@@ -57,6 +58,7 @@ onMounted(() => {
         class="mx-auto flex h-screen flex-col chat-container"
         :class="{ 'settings-open': isSettingsOpen }"
       >
+        <SystemRequirements />
         <div
           v-if="isSystemPromptOpen"
           class="mx-auto flex h-screen w-full max-w-7xl flex-col gap-4 px-4 pb-4"
