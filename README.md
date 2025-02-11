@@ -30,31 +30,30 @@
 
 ## 🚀 Quick Start
 
-### Prerequisites (only needed for local development)
-
+### Prerequisites
 1. Install [Ollama](https://ollama.ai/download)
 2. Install [Node.js](https://nodejs.org/) (v16+) and [Yarn](https://classic.yarnpkg.com/lang/en/docs/install)
 3. Install [Python](https://www.python.org/) (3.8+) for the speech server
 
-### Local Development
+### One-Click Launch
+The easiest way to start everything is using our all-in-one launch script:
 
 ```bash
 # Start Ollama server with your preferred model
 ollama pull mistral  # or any other model
 ollama serve
 
-# Clone and run the GUI
+# Clone the repository
 git clone https://github.com/HelgeSverre/ollama-gui.git
 cd ollama-gui
-yarn install
-yarn dev
 
-# Set up the speech server (in a separate terminal)
-cd speech_server
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-python speech_server.py
+# Start both the GUI and speech server
+# On Windows:
+start.bat
+
+# On Linux/macOS:
+chmod +x start.sh  # Make script executable (first time only)
+./start.sh
 ```
 
 ### Using the Hosted Version
@@ -103,9 +102,10 @@ The `speech_server` directory contains a Flask-based server that handles:
 - Automatic model loading and GPU acceleration when available
 
 ### Setup
-1. Install Python dependencies and start the server:
 
-On Windows:
+#### Automatic Setup
+To quickly set up the speech server, you can use the following command:
+
 ```bash
 cd speech_server
 python -m venv venv
