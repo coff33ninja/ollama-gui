@@ -1,0 +1,37 @@
+name: Node.js Security Scan
+
+on:
+  push:
+    paths-ignore:
+      - 'speech_server/**'
+  pull_request:
+    paths-ignore:
+      - 'speech_server/**'
+  schedule:
+    - cron: '0 0 * * 0'  # Run weekly
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        run: npm audit
+
+      - name: Install and run Snyk
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          npm install -g snyk
+          snyk test
+        continue-on-error: true  # Don't fail the build if vulnerabilities are found

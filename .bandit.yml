@@ -1,0 +1,3 @@
+# Bandit configuration file
+exclude_dirs: [speech_server/venv, speech_server/tests]
+skips: []

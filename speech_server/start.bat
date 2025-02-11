@@ -4,35 +4,37 @@ setlocal enabledelayedexpansion
 echo Checking Python virtual environment...
 
 REM Check if venv directory exists
-if not exist venv (
-    echo Creating virtual environment...
+if not exist "venv\Scripts\activate.bat" (
+    echo Virtual environment not found. Creating one...
     python -m venv venv
-    if !errorlevel! neq 0 (
+    if %ERRORLEVEL% NEQ 0 (
         echo Error: Failed to create virtual environment.
-        echo Please ensure Python 3.8+ is installed and available in PATH.
         pause
         exit /b 1
     )
+    echo Virtual environment created successfully.
 )
 
 REM Activate virtual environment
-call venv\Scripts\activate
-if !errorlevel! neq 0 (
+call venv\Scripts\activate.bat
+if %ERRORLEVEL% NEQ 0 (
     echo Error: Failed to activate virtual environment.
     pause
     exit /b 1
 )
+echo Virtual environment activated successfully.
 
-REM Check if requirements are installed by trying to import key packages
-python -c "import flask, whisper, transformers" 2>nul
-if !errorlevel! neq 0 (
-    echo Installing requirements...
+REM Install requirements if they exist
+if exist "requirements.txt" (
+    echo Installing required Python packages...
     pip install -r requirements.txt
-    if !errorlevel! neq 0 (
-        echo Error: Failed to install requirements.
+    if %ERRORLEVEL% NEQ 0 (
+        echo Error: Failed to install required Python packages.
         pause
         exit /b 1
     )
+) ELSE (
+    echo Warning: requirements.txt not found. Skipping package installation.
 )
 
 echo Starting speech server...
