@@ -22,8 +22,8 @@
 - 🖥️ Clean, modern interface for interacting with Ollama models
 - 💾 Local chat history using IndexedDB
 - 📝 Full Markdown support in messages
-- 🎙️ Speech-to-Text using Whisper models
-- 🔊 Text-to-Speech using Bark models
+- 🎙️ Speech-to-Text using Whisper
+- 🔊 Text-to-Speech using Bark
 - 🌙 Dark mode support
 - 🚀 Fast and responsive
 - 🔒 Privacy-focused: All processing happens locally
@@ -34,10 +34,7 @@
 
 1. Install [Ollama](https://ollama.ai/download)
 2. Install [Node.js](https://nodejs.org/) (v16+) and [Yarn](https://classic.yarnpkg.com/lang/en/docs/install)
-3. For speech features, install Python dependencies:
-   ```bash
-   pip install transformers torch
-   ```
+3. Install [Python](https://www.python.org/) (3.8+) for the speech server
 
 ### Local Development
 
@@ -46,15 +43,18 @@
 ollama pull mistral  # or any other model
 ollama serve
 
-# For speech support, install recommended models
-ollama pull whisper:base  # for speech-to-text
-ollama pull bark:small    # for text-to-speech
-
 # Clone and run the GUI
 git clone https://github.com/HelgeSverre/ollama-gui.git
 cd ollama-gui
 yarn install
 yarn dev
+
+# Set up the speech server (in a separate terminal)
+cd speech_server
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python speech_server.py
 ```
 
 ### Using the Hosted Version
@@ -92,50 +92,49 @@ docker compose up -d
 docker compose down
 ```
 
-#### Download more models
-```bash
-# Enter the ollama container
-docker exec -it ollama bash
-
-# Inside the container
-ollama pull <model_name>
-
-# Example
-ollama pull deepseek-r1:7b
-
-# For speech support
-ollama pull whisper:base
-ollama pull bark:small
-
-# Install Python dependencies for speech models
-pip install transformers torch
-```
-
-Restart the containers using `docker compose restart`.
-
-Models will get downloaded inside the folder `./ollama_data` in the repository. You can change it inside the `compose.yml`
-
 ## 🗣️ Speech Features
 
-The GUI supports both speech input and output through Hugging Face models:
+The GUI includes a dedicated speech server for high-quality voice interactions:
 
-### Speech-to-Text
-- Uses OpenAI's Whisper model for accurate transcription
-- Click the microphone button to start recording
-- Automatically transcribes speech to text
-- Requires `whisper:base` model (or similar)
-
-### Text-to-Speech
-- Uses Suno's Bark model for natural speech synthesis
-- Click the speaker button on AI messages to hear them
-- High-quality voice generation
-- Requires `bark:small` model (or similar)
+### Speech Server
+The `speech_server` directory contains a Flask-based server that handles:
+- Speech-to-Text using OpenAI's Whisper
+- Text-to-Speech using Suno's Bark
+- Automatic model loading and GPU acceleration when available
 
 ### Setup
-1. Install Python dependencies: `pip install transformers torch`
-2. Install models through Ollama or the GUI's Model Library
-3. Enable speech features in Settings
-4. Use microphone/speaker buttons to interact
+1. Install Python dependencies and start the server:
+
+On Windows:
+```bash
+cd speech_server
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+2. Start the server:
+```bash
+python speech_server.py
+```
+
+The server runs on http://localhost:5000 and provides:
+- POST `/speech-to-text` - Convert audio to text using Whisper
+- POST `/text-to-speech` - Convert text to speech using Bark
+- GET `/health` - Check server status
+
+### Using Speech Features
+- Click the microphone button to start recording (requires server running)
+- Click the speaker button on AI messages to hear them
+- Speech features are automatically enabled when the server is detected
+- Settings can be adjusted in the GUI settings panel
+
+### Requirements
+- Python 3.8+
+- ~10GB disk space for models
+- CUDA-capable GPU recommended but not required
+- Microphone for speech input
+- Speakers for speech output
 
 ## 🛣️ Roadmap
 
@@ -144,6 +143,7 @@ The GUI supports both speech input and output through Hugging Face models:
 - [x] Code cleanup and organization
 - [x] Speech-to-Text support
 - [x] Text-to-Speech support
+- [x] Dedicated speech server
 - [ ] Model library browser and installer
 - [ ] Mobile-responsive design
 - [ ] File uploads with OCR support
@@ -155,7 +155,9 @@ The GUI supports both speech input and output through Hugging Face models:
 - [Tailwind CSS](https://tailwindcss.com/) - Styling
 - [VueUse](https://vueuse.org/) - Vue Composition Utilities
 - [@tabler/icons-vue](https://github.com/tabler/icons-vue) - Icons
-- [Hugging Face](https://huggingface.co/) - Speech Models
+- [Flask](https://flask.palletsprojects.com/) - Speech Server
+- [Whisper](https://github.com/openai/whisper) - Speech-to-Text
+- [Bark](https://github.com/suno-ai/bark) - Text-to-Speech
 - Design inspired by [LangUI](https://www.langui.dev/)
 - Hosted on [Vercel](https://vercel.com/)
 

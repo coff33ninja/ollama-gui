@@ -1,29 +1,52 @@
-import { baseUrl } from './appConfig'
+const SPEECH_SERVER = 'http://localhost:5000'
 
 export type SpeechToTextRequest = {
-  model: string
   audio: Blob
+  language?: string
+  task?: 'transcribe' | 'translate'
 }
 
 export type SpeechToTextResponse = {
   text: string
+  confidence?: number
+  language?: string
 }
 
 export type TextToSpeechRequest = {
-  model: string
   text: string
+  voice?: string
+  language?: string
+  options?: {
+    splitSentences?: boolean
+    addSilence?: boolean
+    silenceDuration?: number
+    speed?: number
+    pitch?: number
+  }
 }
 
-const getApiUrl = (path: string) =>
-  `${baseUrl.value || 'http://localhost:11434/api'}${path}`
+export type TextToSpeechResponse = {
+  audio: ArrayBuffer
+  metadata?: {
+    duration: number
+    sampleRate: number
+    format: string
+  }
+}
 
 export const useAISpeechApi = () => {
   const processSpeechToText = async (params: SpeechToTextRequest): Promise<SpeechToTextResponse> => {
     const formData = new FormData()
     formData.append('audio', params.audio)
-    formData.append('model', params.model)
+    
+    if (params.language) {
+      formData.append('language', params.language)
+    }
+    if (params.task) {
+      formData.append('task', params.task)
+    }
 
-    const response = await fetch(getApiUrl('/speech-to-text'), {
+    const response = await fetch(`${SPEECH_SERVER}/speech-to-text`, {
       method: 'POST',
       body: formData,
     })
@@ -35,8 +58,8 @@ export const useAISpeechApi = () => {
     return await response.json()
   }
 
-  const processTextToSpeech = async (params: TextToSpeechRequest): Promise<ArrayBuffer> => {
-    const response = await fetch(getApiUrl('/text-to-speech'), {
+  const processTextToSpeech = async (params: TextToSpeechRequest): Promise<TextToSpeechResponse> => {
+    const response = await fetch(`${SPEECH_SERVER}/text-to-speech`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -48,7 +71,13 @@ export const useAISpeechApi = () => {
       throw new Error('Failed to process text-to-speech')
     }
 
-    return await response.arrayBuffer()
+    const audioBuffer = await response.arrayBuffer()
+    const metadata = response.headers.get('X-Audio-Metadata')
+    
+    return {
+      audio: audioBuffer,
+      metadata: metadata ? JSON.parse(metadata) : undefined
+    }
   }
 
   return {
